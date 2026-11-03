@@ -1,0 +1,3 @@
+admin|admin123|admin|Administrator
+kasir1|kasir123|kasir|Budi Santoso
+kasir2|kasir456|kasir|Siti Aminah

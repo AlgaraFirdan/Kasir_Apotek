@@ -1,0 +1,12 @@
+OB001|Paracetamol 500mg|bebas|strip|5000|120|2027-05-30
+OB002|Amoxicillin 500mg|keras|strip|12000|40|2027-12-31
+OB003|Vitamin C|bebas|botol|18000|8|2027-08-15
+OB004|Obat Batuk Sirup|bebas terbatas|botol|25000|25|2027-02-20
+OB005|Ibuprofen 400mg|bebas|strip|8000|60|2026-12-15
+OB006|Salbutamol|keras|strip|15000|30|2027-06-01
+OB007|anisida|bebas|strip|5000|1|2027-10-10
+OB008|Cetirizine|bebas terbatas|strip|7000|18|2027-03-22
+OB009|Omeprazole|keras|strip|11000|22|2027-11-30
+OB010|Betadine|bebas terbatas|botol|16000|14|2026-11-20
+OB011|Masker Medis|bebas|box|30000|45|2029-01-01
+OB012|Plester Luka|bebas|box|12000|5|2028-04-12
