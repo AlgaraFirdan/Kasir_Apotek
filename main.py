@@ -1,9 +1,14 @@
+# =====================================
+# FILE UTAMA: MENU DAN ALUR APLIKASI
+# =====================================
+
 from laporan import laporan_harian, laporan_kedaluwarsa, laporan_stok, obat_terlaris, total_pendapatan
 from obat import cari_kode, cari_nama, hapus_obat, muat_obat, tambah_obat, tampil_obat, ubah_obat, urutkan
 from transaksi import proses_transaksi, riwayat_kasir
 from user import hapus_user, login, muat_user, tambah_user, ubah_password
 from utils import garis, pastikan_folder, tunggu
 
+# Menu pengelolaan data obat untuk admin.
 def menu_obat(data):
     while True:
         print("\n" + garis())
@@ -29,6 +34,7 @@ def menu_obat(data):
         else: print("Pilihan tidak valid.")
         if pilihan != "0": tunggu()
 
+# Menu pengelolaan akun untuk admin.
 def menu_user(data, user):
     while True:
         print("\nKELOLA USER\n1. Tambah\n2. Ubah password\n3. Hapus\n0. Kembali")
@@ -40,6 +46,7 @@ def menu_user(data, user):
         else: print("Pilihan tidak valid.")
         if pilihan != "0": tunggu()
 
+# Menu pilihan laporan untuk admin.
 def menu_laporan(data):
     while True:
         print("\nLAPORAN\n1. Penjualan harian\n2. Obat terlaris\n3. Stok menipis\n4. Kedaluwarsa\n5. Total pendapatan\n0. Kembali")
@@ -53,6 +60,7 @@ def menu_laporan(data):
         else: print("Pilihan tidak valid.")
         if pilihan != "0": tunggu()
 
+# Menu utama admin. Akses ini hanya diberikan setelah login sebagai admin.
 def menu_admin(user, users, data):
     while True:
         print("\n" + garis() + "\nMENU ADMIN\n1. Kelola Obat\n2. Kelola User\n3. Laporan\n4. Logout")
@@ -63,6 +71,7 @@ def menu_admin(user, users, data):
         elif pilihan == "4": return
         else: print("Pilihan tidak valid.")
 
+# Menu utama kasir. Kasir dapat bertransaksi dan melihat riwayat miliknya.
 def menu_kasir(user, data):
     while True:
         print("\n" + garis() + "\nMENU KASIR\n1. Transaksi baru\n2. Cari obat\n3. Riwayat transaksi saya\n4. Logout")
@@ -74,6 +83,7 @@ def menu_kasir(user, data):
         else: print("Pilihan tidak valid.")
         if pilihan != "4": tunggu()
 
+# Titik awal program. Semua folder, user, dan obat dimuat dari sini.
 def main():
     pastikan_folder()
     users, data = muat_user(), muat_obat()
@@ -83,8 +93,12 @@ def main():
         if user is None:
             print("Login gagal tiga kali. Program selesai.")
             return
-        if user["role"] == "admin": menu_admin(user, users, data)
-        else: menu_kasir(user, data)
+
+        # Tampilkan menu berdasarkan peran user yang berhasil login.
+        if user["role"] == "admin":
+            menu_admin(user, users, data)
+        else:
+            menu_kasir(user, data)
         print("Anda telah logout.")
 
 if __name__ == "__main__":

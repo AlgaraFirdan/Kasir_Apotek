@@ -4,11 +4,18 @@ import os
 from obat import cari_kode, sudah_kedaluwarsa, simpan_obat
 from utils import DATA_DIR, RECEIPT_DIR, format_rupiah, input_angka, garis, tanggal_valid
 
+# ==============================
+# TRANSAKSI PEMBELIAN OBAT
+# ==============================
+
+# Modul ini mengelola keranjang, pembayaran, stok, riwayat, dan struk.
+
 PATH_TRANSAKSI = os.path.join(DATA_DIR, "transaksi.txt")
 PATH_DETAIL = os.path.join(DATA_DIR, "detail_transaksi.txt")
 BATAS_DISKON = 100000
 PERSEN_DISKON = 5
 
+# Menambahkan obat ke keranjang, atau menambah jumlah jika obat sudah ada.
 def tambah_ke_keranjang(keranjang, obat, jumlah):
     for item in keranjang:
         if item["kode"] == obat["kode"]:
@@ -38,6 +45,7 @@ def hapus_dari_keranjang(keranjang):
         else:
             print("Nomor item tidak valid.")
 
+# Menghitung diskon berdasarkan subtotal keranjang.
 def hitung_diskon(total):
     return total * PERSEN_DISKON // 100 if total >= BATAS_DISKON else 0
 
@@ -46,6 +54,7 @@ def hitung_total(keranjang):
     diskon = hitung_diskon(subtotal)
     return subtotal, diskon, subtotal - diskon
 
+# Meminta uang pembayaran dan mengulang sampai nilainya cukup.
 def proses_bayar(total):
     while True:
         bayar = input_angka(f"Bayar ({format_rupiah(total)}): ", 0)
@@ -53,6 +62,7 @@ def proses_bayar(total):
             return bayar, bayar - total
         print("Uang bayar kurang dari total.")
 
+# Membuat nomor transaksi unik dari tanggal dan waktu saat ini.
 def buat_id_transaksi():
     return "TRX" + datetime.now().strftime("%Y%m%d%H%M%S%f")[:-3]
 
@@ -70,6 +80,7 @@ def buat_struk(id_transaksi, waktu, nama_kasir, keranjang, total, diskon, bayar,
                   "Terima kasih, semoga lekas sembuh"])
     return "\n".join(baris)
 
+# Menyimpan header transaksi dan setiap item barang yang dibeli.
 def simpan_transaksi(id_transaksi, waktu, username, keranjang, total, diskon, bayar, kembalian):
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(PATH_TRANSAKSI, "a", encoding="utf-8") as file:
@@ -78,6 +89,7 @@ def simpan_transaksi(id_transaksi, waktu, username, keranjang, total, diskon, ba
         for item in keranjang:
             file.write(f"{id_transaksi}|{item['kode']}|{item['nama']}|{item['jumlah']}|{item['harga']}|{item['subtotal']}\n")
 
+# Menulis teks struk ke folder struk dan mengembalikan lokasi filenya.
 def simpan_struk(id_transaksi, teks):
     os.makedirs(RECEIPT_DIR, exist_ok=True)
     path = os.path.join(RECEIPT_DIR, f"{id_transaksi}.txt")
@@ -85,12 +97,14 @@ def simpan_struk(id_transaksi, teks):
         file.write(teks)
     return path
 
+# Mengurangi stok setiap obat yang dibeli, lalu menyimpannya ke file obat.
 def kurangi_stok(data, keranjang):
     for item in keranjang:
         indeks = cari_kode(data, item["kode"])
         data[indeks]["stok"] -= item["jumlah"]
     simpan_obat(data)
 
+# Menampilkan hanya transaksi milik kasir yang sedang login.
 def riwayat_kasir(username):
     if not os.path.exists(PATH_TRANSAKSI):
         print("Belum ada transaksi.")
@@ -105,6 +119,7 @@ def riwayat_kasir(username):
     if not ditemukan:
         print("Belum ada riwayat transaksi.")
 
+# Alur lengkap satu transaksi: isi keranjang, bayar, kurangi stok, simpan, dan cetak struk.
 def proses_transaksi(data, user):
     keranjang = []
     while True:

@@ -3,9 +3,16 @@ import os
 
 from utils import DATA_DIR, format_rupiah, input_angka, input_tanggal, tanggal_valid
 
+# ==============================
+# PENGELOLAAN DATA OBAT
+# ==============================
+
+# Modul ini menyimpan semua data obat dalam data/obat.txt.
+
 PATH_OBAT = os.path.join(DATA_DIR, "obat.txt")
 GOLONGAN = ("bebas", "bebas terbatas", "keras")
 
+# Membaca data obat dari file dan menjadikannya daftar dictionary.
 def muat_obat():
     os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(PATH_OBAT):
@@ -30,6 +37,7 @@ def muat_obat():
                          "satuan": bagian[3], "harga": harga, "stok": stok, "kedaluwarsa": bagian[6]})
     return data
 
+# Menulis ulang seluruh data obat ke obat.txt.
 def simpan_obat(data):
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(PATH_OBAT, "w", encoding="utf-8") as file:
@@ -37,6 +45,7 @@ def simpan_obat(data):
             file.write("|".join([obat["kode"], obat["nama"], obat["golongan"], obat["satuan"],
                                  str(obat["harga"]), str(obat["stok"]), obat["kedaluwarsa"]]) + "\n")
 
+# Mengurutkan obat berdasarkan nama, harga, stok, atau kedaluwarsa.
 def urutkan(data, kunci, naik=True):
     hasil = data.copy()
     if kunci in ("harga", "stok"):
@@ -53,6 +62,7 @@ def urutkan(data, kunci, naik=True):
             hasil[indeks], hasil[pilihan] = hasil[pilihan], hasil[indeks]
     return hasil
 
+# Mencari obat berdasarkan kode menggunakan pencarian biner.
 def cari_kode(data, kode):
     terurut = urutkan(data, "kode")
     kiri, kanan = 0, len(terurut) - 1
@@ -70,17 +80,21 @@ def cari_kode(data, kode):
             kanan = tengah - 1
     return -1
 
+# Mencari nama obat yang mengandung kata pencarian.
 def cari_nama(data, kata):
     kata = kata.lower()
     return [obat for obat in data if kata in obat["nama"].lower()]
 
+# Mengecek apakah tanggal kedaluwarsa sudah lewat.
 def sudah_kedaluwarsa(tanggal):
     nilai = tanggal_valid(tanggal) if isinstance(tanggal, str) else tanggal
     return nilai is not None and nilai < date.today()
 
+# Mengambil semua obat yang stoknya kurang dari batas yang ditentukan.
 def cek_stok_menipis(data, batas=10):
     return [obat for obat in data if obat["stok"] < batas]
 
+# Menampilkan daftar obat dalam bentuk tabel.
 def tampil_obat(data):
     if not data:
         print("Belum ada data obat.")
@@ -91,6 +105,7 @@ def tampil_obat(data):
         print(f"{obat['kode']:<8} {obat['nama'][:25]:<26} {obat['golongan']:<16} "
               f"{format_rupiah(obat['harga']):>12} {obat['stok']:>6} {obat['kedaluwarsa']:<12}")
 
+# Meminta data obat baru, memvalidasi, lalu menyimpannya.
 def tambah_obat(data):
     kode = input("Kode obat (OBxxx): ").strip().upper()
     if not kode.startswith("OB") or not kode[2:].isalnum() or any(o["kode"] == kode for o in data):
@@ -110,6 +125,7 @@ def tambah_obat(data):
     simpan_obat(data)
     print("Obat berhasil ditambahkan.")
 
+# Mengubah bagian data obat yang diisi pengguna.
 def ubah_obat(data):
     kode = input("Kode obat yang diubah: ").strip().upper()
     indeks = cari_kode(data, kode)
@@ -146,6 +162,7 @@ def ubah_obat(data):
     simpan_obat(data)
     print("Obat berhasil diubah.")
 
+# Menghapus obat setelah kode ditemukan dan pengguna mengonfirmasi.
 def hapus_obat(data):
     kode = input("Kode obat yang dihapus: ").strip().upper()
     indeks = cari_kode(data, kode)

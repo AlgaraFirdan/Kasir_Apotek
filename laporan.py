@@ -5,12 +5,20 @@ from obat import cek_stok_menipis
 from transaksi import PATH_DETAIL, PATH_TRANSAKSI
 from utils import format_rupiah, input_tanggal
 
+# ==============================
+# LAPORAN PENJUALAN DAN STOK
+# ==============================
+
+# Data laporan diambil dari data/transaksi.txt dan data/detail_transaksi.txt.
+
+# Membaca file teks menjadi daftar baris yang dipisahkan tanda |.
 def baca_baris(path):
     if not os.path.exists(path):
         return []
     with open(path, "r", encoding="utf-8") as file:
         return [baris.strip().split("|") for baris in file if baris.strip()]
 
+# Menghitung jumlah dan pendapatan transaksi pada tanggal tertentu.
 def laporan_harian():
     tanggal = input_tanggal("Tanggal laporan (YYYY-MM-DD): ")
     transaksi = [b for b in baca_baris(PATH_TRANSAKSI) if len(b) == 7 and b[1].startswith(tanggal)]
@@ -19,6 +27,7 @@ def laporan_harian():
     for b in transaksi:
         print(f"{b[0]} - {b[2]} - {format_rupiah(int(b[3]))}")
 
+# Menghitung obat yang paling banyak dibeli dari detail transaksi.
 def obat_terlaris():
     jumlah = {}
     nama = {}
@@ -37,6 +46,7 @@ def obat_terlaris():
     for kode, banyak in hasil[:5]:
         print(f"{kode} - {nama[kode]}: {banyak} unit")
 
+# Menampilkan obat dengan stok paling sedikit dan mengurutkannya.
 def laporan_stok(data):
     hasil = cek_stok_menipis(data)
     for indeks in range(len(hasil)):
@@ -50,6 +60,7 @@ def laporan_stok(data):
     for obat in hasil:
         print(f"{obat['kode']} - {obat['nama']}: {obat['stok']} {obat['satuan']}")
 
+# Menampilkan obat kedaluwarsa atau hampir kedaluwarsa dalam 90 hari.
 def laporan_kedaluwarsa(data):
     hari_ini = date.today()
     batas = hari_ini + timedelta(days=90)
@@ -65,6 +76,7 @@ def laporan_kedaluwarsa(data):
         status = "SUDAH" if tanggal < hari_ini else "hampir"
         print(f"{obat['kode']} - {obat['nama']}: {tanggal} ({status})")
 
+# Mengelompokkan pendapatan berdasarkan username kasir.
 def total_pendapatan():
     hasil = {}
     for bagian in baca_baris(PATH_TRANSAKSI):
