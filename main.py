@@ -15,6 +15,7 @@ def menu_obat(data):
         print("KELOLA OBAT")
         print("1. Tambah  2. Lihat  3. Cari  4. Ubah  5. Hapus  6. Urutkan  0. Kembali")
         pilihan = input("Pilih: ").strip()
+        # Memanggil fungsi yang berbeda sesuai angka pilihan admin.
         if pilihan == "1": tambah_obat(data)
         elif pilihan == "2": tampil_obat(data)
         elif pilihan == "3":
@@ -85,16 +86,21 @@ def menu_kasir(user, data):
 
 # Titik awal program. Semua folder, user, dan obat dimuat dari sini.
 def main():
+    # pastikan_folder() menyiapkan lokasi penyimpanan sebelum file dibaca atau ditulis.
     pastikan_folder()
+
+    # muat_user() dan muat_obat() mengubah isi file menjadi data Python yang siap dipakai.
     users, data = muat_user(), muat_obat()
     print("\nAPLIKASI KASIR APOTEK")
     while True:
+        # login() mengembalikan None jika username/password salah sebanyak tiga kali.
         user = login(users)
         if user is None:
             print("Login gagal tiga kali. Program selesai.")
             return
 
         # Tampilkan menu berdasarkan peran user yang berhasil login.
+        # Jika role admin buka menu admin, sedangkan role lain diperlakukan sebagai kasir.
         if user["role"] == "admin":
             menu_admin(user, users, data)
         else:
@@ -106,3 +112,5 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\nProgram dihentikan dengan rapi.")
+# while True membuat menu terus muncul sampai dipilih kembali atau logout.
+        # strip() menghapus spasi awal/akhir agar input " 1 " tetap diterima sebagai pilihan 1.

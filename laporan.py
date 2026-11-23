@@ -19,6 +19,7 @@ def baca_baris(path):
         return [baris.strip().split("|") for baris in file if baris.strip()]
 
 # Menghitung jumlah dan pendapatan transaksi pada tanggal tertentu.
+# Kolom b[1] berisi waktu transaksi, sedangkan b[3] berisi nilai pendapatan.
 def laporan_harian():
     tanggal = input_tanggal("Tanggal laporan (YYYY-MM-DD): ")
     transaksi = [b for b in baca_baris(PATH_TRANSAKSI) if len(b) == 7 and b[1].startswith(tanggal)]
@@ -28,6 +29,7 @@ def laporan_harian():
         print(f"{b[0]} - {b[2]} - {format_rupiah(int(b[3]))}")
 
 # Menghitung obat yang paling banyak dibeli dari detail transaksi.
+# b[1] adalah kode obat dan b[3] adalah jumlah unit yang dibeli.
 def obat_terlaris():
     jumlah = {}
     nama = {}
@@ -47,6 +49,7 @@ def obat_terlaris():
         print(f"{kode} - {nama[kode]}: {banyak} unit")
 
 # Menampilkan obat dengan stok paling sedikit dan mengurutkannya.
+# Urutkan stok terkecil ke terbesar agar obat paling kritis tampil pertama.
 def laporan_stok(data):
     hasil = cek_stok_menipis(data)
     for indeks in range(len(hasil)):
@@ -63,6 +66,7 @@ def laporan_stok(data):
 # Menampilkan obat kedaluwarsa atau hampir kedaluwarsa dalam 90 hari.
 def laporan_kedaluwarsa(data):
     hari_ini = date.today()
+    # Batas adalah tanggal 90 hari dari hari ini, termasuk obat yang sudah kedaluwarsa.
     batas = hari_ini + timedelta(days=90)
     hasil = []
     for obat in data:
@@ -73,10 +77,12 @@ def laporan_kedaluwarsa(data):
     if not hasil:
         print("Tidak ada obat kedaluwarsa atau hampir kedaluwarsa.")
     for tanggal, obat in hasil:
+        # Lebih kecil dari hari ini berarti sudah kedaluwarsa; selain itu hampir kedaluwarsa.
         status = "SUDAH" if tanggal < hari_ini else "hampir"
         print(f"{obat['kode']} - {obat['nama']}: {tanggal} ({status})")
 
 # Mengelompokkan pendapatan berdasarkan username kasir.
+# get() mengambil nilai lama atau 0 jika kasir ini pertama kali ditemukan.
 def total_pendapatan():
     hasil = {}
     for bagian in baca_baris(PATH_TRANSAKSI):

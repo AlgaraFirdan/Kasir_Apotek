@@ -22,17 +22,21 @@ def muat_obat():
         for nomor, baris in enumerate(file, 1):
             if not baris.strip():
                 continue
+            # Pecah satu baris menjadi tujuh kolom: kode, nama, golongan, satuan, harga, stok, kedaluwarsa.
             bagian = [item.strip() for item in baris.strip().split("|")]
             if len(bagian) != 7:
                 print(f"Peringatan: baris obat ke-{nomor} dilewati.")
                 continue
             try:
+                # int() mengubah teks "5000" menjadi angka 5000 agar dapat dihitung.
                 harga, stok = int(bagian[4]), int(bagian[5])
+                # Harga dan stok tidak boleh negatif; tanggal kedaluwarsa juga harus valid.
                 if harga < 0 or stok < 0 or tanggal_valid(bagian[6]) is None:
                     raise ValueError
             except ValueError:
                 print(f"Peringatan: data obat ke-{nomor} rusak dan dilewati.")
                 continue
+            # Ubah kolom teks menjadi dictionary agar mudah diakses dengan nama kunci.
             data.append({"kode": bagian[0].upper(), "nama": bagian[1], "golongan": bagian[2].lower(),
                          "satuan": bagian[3], "harga": harga, "stok": stok, "kedaluwarsa": bagian[6]})
     return data
@@ -47,6 +51,7 @@ def simpan_obat(data):
 
 # Mengurutkan obat berdasarkan nama, harga, stok, atau kedaluwarsa.
 def urutkan(data, kunci, naik=True):
+    # Copy dipakai agar urutan asli data tidak langsung berubah.
     hasil = data.copy()
     if kunci in ("harga", "stok"):
         for batas in range(len(hasil) - 1, 0, -1):
@@ -64,6 +69,7 @@ def urutkan(data, kunci, naik=True):
 
 # Mencari obat berdasarkan kode menggunakan pencarian biner.
 def cari_kode(data, kode):
+    # Urutkan dulu, lalu cari melalui kiri, tengah, dan kanan daftar.
     terurut = urutkan(data, "kode")
     kiri, kanan = 0, len(terurut) - 1
     kode = kode.upper()
@@ -82,6 +88,7 @@ def cari_kode(data, kode):
 
 # Mencari nama obat yang mengandung kata pencarian.
 def cari_nama(data, kata):
+    # lower() membuat pencarian tidak terpengaruh huruf besar/kecil.
     kata = kata.lower()
     return [obat for obat in data if kata in obat["nama"].lower()]
 
@@ -92,6 +99,7 @@ def sudah_kedaluwarsa(tanggal):
 
 # Mengambil semua obat yang stoknya kurang dari batas yang ditentukan.
 def cek_stok_menipis(data, batas=10):
+    # Ambil obat jika stok-nya lebih kecil dari batas yang ditentukan.
     return [obat for obat in data if obat["stok"] < batas]
 
 # Menampilkan daftar obat dalam bentuk tabel.
@@ -107,11 +115,14 @@ def tampil_obat(data):
 
 # Meminta data obat baru, memvalidasi, lalu menyimpannya.
 def tambah_obat(data):
+    # upper() membuat kode huruf besar dan strip() membuang spasi di awal/akhir.
     kode = input("Kode obat (OBxxx): ").strip().upper()
+    # Valid jika diawali OB, sisanya huruf/angka, dan belum dipakai obat lain.
     if not kode.startswith("OB") or not kode[2:].isalnum() or any(o["kode"] == kode for o in data):
         print("Kode tidak valid atau sudah digunakan.")
         return
     nama = input("Nama obat: ").strip()
+    # Golongan harus persis bebas, bebas terbatas, atau keras.
     golongan = input(f"Golongan {GOLONGAN}: ").strip().lower()
     if golongan not in GOLONGAN:
         print("Golongan tidak valid.")
@@ -142,7 +153,6 @@ def ubah_obat(data):
         obat["nama"] = nama
     if harga:
         try:
-            obat["harga"] = int(harga)
             if obat["harga"] < 0: raise ValueError
         except ValueError:
             print("Harga tidak valid.")

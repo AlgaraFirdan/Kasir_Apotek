@@ -47,6 +47,7 @@ def hapus_dari_keranjang(keranjang):
 
 # Menghitung diskon berdasarkan subtotal keranjang.
 def hitung_diskon(total):
+    # // membuang angka desimal sehingga diskon tetap berupa rupiah bulat.
     return total * PERSEN_DISKON // 100 if total >= BATAS_DISKON else 0
 
 def hitung_total(keranjang):
@@ -83,6 +84,7 @@ def buat_struk(id_transaksi, waktu, nama_kasir, keranjang, total, diskon, bayar,
 # Menyimpan header transaksi dan setiap item barang yang dibeli.
 def simpan_transaksi(id_transaksi, waktu, username, keranjang, total, diskon, bayar, kembalian):
     os.makedirs(DATA_DIR, exist_ok=True)
+    # Mode "a" menambahkan data baru tanpa menghapus transaksi lama.
     with open(PATH_TRANSAKSI, "a", encoding="utf-8") as file:
         file.write(f"{id_transaksi}|{waktu}|{username}|{total}|{diskon}|{bayar}|{kembalian}\n")
     with open(PATH_DETAIL, "a", encoding="utf-8") as file:
@@ -99,6 +101,7 @@ def simpan_struk(id_transaksi, teks):
 
 # Mengurangi stok setiap obat yang dibeli, lalu menyimpannya ke file obat.
 def kurangi_stok(data, keranjang):
+    # Pengurangan dilakukan setiap item dalam keranjang, bukan langsung untuk seluruh keranjang sekaligus.
     for item in keranjang:
         indeks = cari_kode(data, item["kode"])
         data[indeks]["stok"] -= item["jumlah"]
@@ -121,28 +124,36 @@ def riwayat_kasir(username):
 
 # Alur lengkap satu transaksi: isi keranjang, bayar, kurangi stok, simpan, dan cetak struk.
 def proses_transaksi(data, user):
+    # Keranjang dimulai kosong. Setiap obat yang diterima ditambahkan sebagai dictionary.
     keranjang = []
     while True:
         tampil_keranjang(keranjang)
         kode = input("Kode obat (kosong untuk selesai input): ").strip().upper()
+        # Jika kasir menekan Enter tanpa mengisi kode, pengisian keranjang dihentikan.
         if not kode:
             break
+        # cari_kode() mengembalikan posisi obat pada list, atau -1 jika tidak ditemukan.
         indeks = cari_kode(data, kode)
         if indeks == -1:
             print("Obat tidak ditemukan.")
             continue
         obat = data[indeks]
+        # Obat ditolak sebelum masuk keranjang jika tanggal kedaluwarsanya sudah lewat.
         if sudah_kedaluwarsa(obat["kedaluwarsa"]):
             print(f"Ditolak: obat kedaluwarsa pada {obat['kedaluwarsa']}.")
             continue
+        # AND berarti konfirmasi resep hanya dibutuhkan ketika obat berstatus keras.
         if obat["golongan"] == "keras" and input("Konfirmasi resep dokter? (y/n): ").lower() != "y":
             print("Item dibatalkan karena resep tidak dikonfirmasi.")
             continue
         jumlah = input_angka("Jumlah: ", 1)
+        # next() mencari jumlah obat ini di keranjang; default-nya 0 jika belum ada.
         sudah_ada = next((item["jumlah"] for item in keranjang if item["kode"] == kode), 0)
+        # Jumlah baru ditambah jumlah lama tidak boleh melebihi stok yang tersedia.
         if jumlah + sudah_ada > obat["stok"]:
             print(f"Stok tidak cukup. Sisa stok: {obat['stok'] - sudah_ada}.")
             continue
+        # Selisih negatif berarti sudah lewat; selisih kurang dari 90 berarti hampir kedaluwarsa.
         if (tanggal := tanggal_valid(obat["kedaluwarsa"])):
             if (tanggal - datetime.now().date()).days < 90:
                 print("Peringatan: obat hampir kedaluwarsa.")

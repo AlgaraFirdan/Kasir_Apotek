@@ -17,6 +17,7 @@ def pastikan_folder():
     os.makedirs(RECEIPT_DIR, exist_ok=True)
 
 # Meminta input angka dan terus mengulang sampai nilainya valid.
+# try menangkap kesalahan jika input tidak dapat diubah menjadi integer.
 def input_angka(pesan, minimum=0):
     while True:
         try:
@@ -29,6 +30,7 @@ def input_angka(pesan, minimum=0):
             print("Masukkan angka yang valid.")
 
 # Meminta tanggal dalam format YYYY-MM-DD, misalnya 2027-12-31.
+# strptime hanya menerima tanggal yang sesuai dengan pola YYYY-MM-DD.
 def input_tanggal(pesan):
     while True:
         nilai = input(pesan).strip()
@@ -39,7 +41,7 @@ def input_tanggal(pesan):
             print("Format tanggal harus YYYY-MM-DD.")
 
 # Mengubah teks tanggal menjadi objek tanggal.
-# Mengembalikan None jika teksnya bukan tanggal yang valid.
+# None digunakan sebagai tanda bahwa nilai bukan tanggal yang dapat dipakai.
 def tanggal_valid(nilai):
     try:
         return datetime.strptime(nilai, "%Y-%m-%d").date()
@@ -47,6 +49,7 @@ def tanggal_valid(nilai):
         return None
 
 # Mengubah angka menjadi tampilan mata uang Indonesia.
+# :,.0f menambah pemisah ribuan, lalu koma diganti titik agar menjadi format Indonesia.
 def format_rupiah(nilai):
     return f"Rp{nilai:,.0f}".replace(",", ".")
 
